@@ -68,7 +68,7 @@ namespace Akij_Food_Crud_Operation_Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CreateColdDrink([FromBody] CreateColdDrinkDTO countryDTO)
+        public async Task<IActionResult> CreateColdDrink([FromBody] CreateColdDrinkDTO coldDrinkDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -78,15 +78,50 @@ namespace Akij_Food_Crud_Operation_Api.Controllers
 
             try
             {
-                var coldDrink = _mapper.Map<ColdDrink>(countryDTO);
+                var coldDrink = _mapper.Map<ColdDrink>(coldDrinkDTO);
                 await _unitOfWork.ColdDrinks.Insert(coldDrink);
                 await _unitOfWork.Save();
 
                 return CreatedAtRoute("GetColdDrink", new { id = coldDrink.ColdDrinksId }, coldDrink);
-            }
+            }     
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Something Went Wrong in the {nameof(CreateColdDrink)}");
+                return StatusCode(500, "Internal Server Error. Please Try Again Later.");
+            }
+        }
+
+
+        [HttpPut("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateColdDrink(int id, [FromBody] UpdateColdDrinkDTO coldDrinkDTO)
+        {
+            if (!ModelState.IsValid || id < 1)
+            {
+                _logger.LogError($"Invalid UPDATE attempt in {nameof(UpdateColdDrink)}");
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var coldDrink = await _unitOfWork.ColdDrinks.Get(q => q.ColdDrinksId == id);
+                if (coldDrink == null)
+                {
+                    _logger.LogError($"Invalid UPDATE attempt in {nameof(UpdateColdDrink)}");
+                    return BadRequest("Submitted data is invalid");
+                }
+
+                _mapper.Map(coldDrinkDTO, coldDrink);
+                _unitOfWork.ColdDrinks.Update(coldDrink);
+                await _unitOfWork.Save();
+
+                return StatusCode(204, "Resource Updated Successfully.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Something Went Wrong in the {nameof(UpdateColdDrink)}");
                 return StatusCode(500, "Internal Server Error. Please Try Again Later.");
             }
         }
