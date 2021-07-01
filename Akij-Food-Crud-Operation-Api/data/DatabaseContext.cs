@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Akij_Food_Crud_Operation_Api.Models;
 
 namespace Akij_Food_Crud_Operation_Api.data
 {
@@ -39,6 +40,8 @@ namespace Akij_Food_Crud_Operation_Api.data
                 }
             );
         }
+
+        public DbSet<Akij_Food_Crud_Operation_Api.Models.ColdDrinkDTO> ColdDrinkDTO { get; set; }
 
     }
 }
