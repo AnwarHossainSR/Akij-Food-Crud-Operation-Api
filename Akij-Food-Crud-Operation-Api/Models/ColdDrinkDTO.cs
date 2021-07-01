@@ -23,4 +23,9 @@ namespace Akij_Food_Crud_Operation_Api.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ColdDrinksId { get; set; }
     }
+
+    public class UpdateColdDrinkDTO : CreateColdDrinkDTO
+    {
+        
+    }
 }
