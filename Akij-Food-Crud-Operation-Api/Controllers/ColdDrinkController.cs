@@ -46,7 +46,7 @@ namespace Akij_Food_Crud_Operation_Api.Controllers
             }
         }
 
-        [HttpGet("{id:int}")]
+       /* [HttpGet("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetColdDrink(int id)
@@ -62,7 +62,7 @@ namespace Akij_Food_Crud_Operation_Api.Controllers
                 _logger.LogError(ex, $"Something Went Wrong in the {nameof(GetColdDrink)}");
                 return StatusCode(500, "Internal Server Error. Please Try Again Later.");
             }
-        }
+        }*/
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -155,6 +155,29 @@ namespace Akij_Food_Crud_Operation_Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Something Went Wrong in the {nameof(DeleteColdDrink)}");
+                return StatusCode(500, "Internal Server Error. Please Try Again Later.");
+            }
+        }
+
+        [HttpGet("{ColdDrinksName}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetColdDrinkByName(string ColdDrinksName)
+        {
+            try
+            {
+                //var coldDrinks = await _unitOfWork.ColdDrinks.GetAll(q => q.ColdDrinksName == ColdDrinksName);
+                var coldDrinks = await _unitOfWork.ColdDrinks.GetAll(e => e.ColdDrinksName.StartsWith(ColdDrinksName) || e.ColdDrinksName.Contains(ColdDrinksName) || e.ColdDrinksName.Equals(ColdDrinksName) || e.ColdDrinksName.ToLower().StartsWith(ColdDrinksName) || e.ColdDrinksName.ToLower().Contains(ColdDrinksName) || e.ColdDrinksName.ToLower().Equals(ColdDrinksName));
+                var results = _mapper.Map<IList<ColdDrinkDTO>>(coldDrinks);
+                if (results == null)
+                {
+                    return NotFound();
+                }
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Something Went Wrong in the {nameof(GetColdDrinks)}");
                 return StatusCode(500, "Internal Server Error. Please Try Again Later.");
             }
         }
