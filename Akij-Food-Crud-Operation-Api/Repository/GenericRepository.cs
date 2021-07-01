@@ -28,8 +28,10 @@ namespace Akij_Food_Crud_Operation_Api.Repository
 
         public void DeleteRange(IEnumerable<T> entities)
         {
-            _db.RemoveRange(entities);
+             _db.RemoveRange(entities);
+             _context.SaveChanges();
         }
+
 
         public async Task<T> Get(Expression<Func<T, bool>> expression, List<string> includes = null)
         {

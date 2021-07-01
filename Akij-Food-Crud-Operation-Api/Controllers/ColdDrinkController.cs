@@ -46,7 +46,7 @@ namespace Akij_Food_Crud_Operation_Api.Controllers
             }
         }
 
-       /* [HttpGet("{id:int}")]
+        [HttpGet("{id:int}", Name = "GetColdDrink")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetColdDrink(int id)
@@ -62,7 +62,7 @@ namespace Akij_Food_Crud_Operation_Api.Controllers
                 _logger.LogError(ex, $"Something Went Wrong in the {nameof(GetColdDrink)}");
                 return StatusCode(500, "Internal Server Error. Please Try Again Later.");
             }
-        }*/
+        }
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -117,7 +117,7 @@ namespace Akij_Food_Crud_Operation_Api.Controllers
                 _unitOfWork.ColdDrinks.Update(coldDrink);
                 await _unitOfWork.Save();
 
-                return StatusCode(204, "Resource Updated Successfully.");
+                return CreatedAtRoute("GetColdDrink", new { id = coldDrink.ColdDrinksId }, coldDrink);
             }
             catch (Exception ex)
             {
@@ -166,7 +166,6 @@ namespace Akij_Food_Crud_Operation_Api.Controllers
         {
             try
             {
-                //var coldDrinks = await _unitOfWork.ColdDrinks.GetAll(q => q.ColdDrinksName == ColdDrinksName);
                 var coldDrinks = await _unitOfWork.ColdDrinks.GetAll(e => e.ColdDrinksName.StartsWith(ColdDrinksName) || e.ColdDrinksName.Contains(ColdDrinksName) || e.ColdDrinksName.Equals(ColdDrinksName) || e.ColdDrinksName.ToLower().StartsWith(ColdDrinksName) || e.ColdDrinksName.ToLower().Contains(ColdDrinksName) || e.ColdDrinksName.ToLower().Equals(ColdDrinksName));
                 var results = _mapper.Map<IList<ColdDrinkDTO>>(coldDrinks);
                 if (results == null)
@@ -178,6 +177,54 @@ namespace Akij_Food_Crud_Operation_Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Something Went Wrong in the {nameof(GetColdDrinks)}");
+                return StatusCode(500, "Internal Server Error. Please Try Again Later.");
+            }
+        }
+
+
+        [HttpDelete("DeleteByPrice")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteColdDrinkByPriceRange()
+        {
+            try
+            {
+                var coldDrinks = await _unitOfWork.ColdDrinks.GetAll(e => e.Quantity < 500);
+
+                _unitOfWork.ColdDrinks.DeleteRange(coldDrinks);
+
+                await _unitOfWork.Save();
+
+                return StatusCode(204, "Resource Deleted Successfully.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Something Went Wrong in the {nameof(DeleteColdDrinkByPriceRange)}");
+                return StatusCode(500, "Internal Server Error. Please Try Again Later.");
+            }
+        }
+
+        [HttpGet("TotalPrice")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> getColdDrinkTotalPrice()
+        {
+            try
+            {
+                var coldDrinks = await _unitOfWork.ColdDrinks.GetAll();
+                decimal sum = 0;
+                for(int i =0; i < coldDrinks.Count(); i++)
+                {
+                    sum = sum + (coldDrinks[i].UnitPrice * coldDrinks[i].Quantity);
+                }
+                
+                return Ok(sum);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Something Went Wrong in the {nameof(getColdDrinkTotalPrice)}");
                 return StatusCode(500, "Internal Server Error. Please Try Again Later.");
             }
         }
