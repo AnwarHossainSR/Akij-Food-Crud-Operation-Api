@@ -125,5 +125,38 @@ namespace Akij_Food_Crud_Operation_Api.Controllers
                 return StatusCode(500, "Internal Server Error. Please Try Again Later.");
             }
         }
+
+        [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteColdDrink(int id)
+        {
+            if (id < 1)
+            {
+                _logger.LogError($"Invalid DELETE attempt in {nameof(DeleteColdDrink)}");
+                return BadRequest();
+            }
+
+            try
+            {
+                var coldDrink = await _unitOfWork.ColdDrinks.Get(q => q.ColdDrinksId == id);
+                if (coldDrink == null)
+                {
+                    _logger.LogError($"Invalid DELETE attempt in {nameof(DeleteColdDrink)}");
+                    return BadRequest("Submitted data is invalid");
+                }
+
+                await _unitOfWork.ColdDrinks.Delete(id);
+                await _unitOfWork.Save();
+
+                return StatusCode(204, "Resource Deleted Successfully.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Something Went Wrong in the {nameof(DeleteColdDrink)}");
+                return StatusCode(500, "Internal Server Error. Please Try Again Later.");
+            }
+        }
     }
 }
