@@ -1,3 +1,4 @@
+using Akij_Food_Crud_Operation_Api.Configuration;
 using Akij_Food_Crud_Operation_Api.data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -39,6 +40,7 @@ namespace Akij_Food_Crud_Operation_Api
                     .AllowAnyMethod()
                     .AllowAnyHeader());
             });
+            services.AddAutoMapper(typeof(MapperInitializer));
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Akij Food", Version = "v1" });
