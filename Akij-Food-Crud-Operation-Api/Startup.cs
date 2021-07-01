@@ -1,5 +1,7 @@
 using Akij_Food_Crud_Operation_Api.Configuration;
 using Akij_Food_Crud_Operation_Api.data;
+using Akij_Food_Crud_Operation_Api.IRepository;
+using Akij_Food_Crud_Operation_Api.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -41,11 +43,14 @@ namespace Akij_Food_Crud_Operation_Api
                     .AllowAnyHeader());
             });
             services.AddAutoMapper(typeof(MapperInitializer));
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Akij Food", Version = "v1" });
             });
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(op =>
+                op.SerializerSettings.ReferenceLoopHandling =
+                    Newtonsoft.Json.ReferenceLoopHandling.Ignore);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
