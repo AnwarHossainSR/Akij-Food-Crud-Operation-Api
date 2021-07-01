@@ -1,4 +1,5 @@
-﻿using Akij_Food_Crud_Operation_Api.IRepository;
+﻿using Akij_Food_Crud_Operation_Api.data;
+using Akij_Food_Crud_Operation_Api.IRepository;
 using Akij_Food_Crud_Operation_Api.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
@@ -59,6 +60,33 @@ namespace Akij_Food_Crud_Operation_Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Something Went Wrong in the {nameof(GetColdDrink)}");
+                return StatusCode(500, "Internal Server Error. Please Try Again Later.");
+            }
+        }
+
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> CreateColdDrink([FromBody] CreateColdDrinkDTO countryDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError($"Invalid POST attempt in {nameof(CreateColdDrink)}");
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var coldDrink = _mapper.Map<ColdDrink>(countryDTO);
+                await _unitOfWork.ColdDrinks.Insert(coldDrink);
+                await _unitOfWork.Save();
+
+                return CreatedAtRoute("GetColdDrink", new { id = coldDrink.ColdDrinksId }, coldDrink);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Something Went Wrong in the {nameof(CreateColdDrink)}");
                 return StatusCode(500, "Internal Server Error. Please Try Again Later.");
             }
         }
